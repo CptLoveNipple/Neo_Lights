@@ -1,0 +1,87 @@
+#include <Adafruit_NeoPixel.h>                                                //Import NeoPixel Header
+
+#define LED_PIN 6                                                             //Set NeoPixel data PIN to 6
+#define LED_COUNT 12                                                          //Number of Pixels set to 12
+#define BRIGHTNESS 128                                                        //Set Pixel brightness to 128 (half) - Max is 255
+#define BUTTON 2                                                              //Button read PIN is 2
+
+Adafruit_NeoPixel strip(LED_COUNT, LED_PIN, NEO_GRBW + NEO_KHZ800);           //Define NeoPixel Ring Parameters
+
+int button_state = 0;                                                         //Current button state defaults to 0 (LOW)
+int old_state = 0;                                                            //Int to track previous button state (Used for SWITCH function)
+
+//Preset Colors:
+uint32_t red = strip.Color(255, 0, 0, 0);                                     //|Used to define preset colors to be chosen by name rather than RGB or HSV values|
+uint32_t green = strip.Color(0, 255, 0, 0);                                   //|                                                                               |
+uint32_t blue = strip.Color(0, 0, 255, 0);                                    //|strip.Color(RED, GREEN, BLUE, WHITE);                                          |
+uint32_t white = strip.Color(0, 0, 0, 255);                                   //|0 - 255                                                                        |
+uint32_t purple = strip.Color(255, 0, 255, 0);                                //|                                                                               |  
+uint32_t yellow = strip.Color(255, 200, 0, 0);                                //|                                                                               |
+uint32_t cyan = strip.Color(0, 120, 255, 10);                                 //|                                                                               |
+
+void setup() {
+
+  strip.begin();                                                              //Initialize NeoPixel Ring and set Brightness to half.
+  strip.show();                                                               //
+  strip.setBrightness(128);                                                   //
+
+  pinMode(2, INPUT);                                                          //Pin 2 is INPUT reading button
+  pinMode(6, OUTPUT);                                                         //Pin 6 is OUTPUT sending data to the NeoPixel Ring
+
+  attachInterrupt(digitalPinToInterrupt(2), button_poll, RISING);             //Tells the program to read Pin 2 and run switch_light when the Pin state is HIGH
+  
+}
+
+void loop(){
+
+  strip.show();                                                               //This strip.show() is needed to display each case below
+  delay(100);                                                                 //Delay 100ms so that the case below does not change too quickly
+
+  switch (button_state){                                                      //Uses the int stored in button_state to select the case number below
+
+    case 1:                                                                   //|Fill all lights with red|
+                                                                              //|                        | 
+      strip.fill(red, 0, 12);                                                 //|                        | 
+      strip.show();                                                           //|                        | 
+      old_state = button_state;                                               //|                        |   
+      break;                                                                  //|                        | 
+
+    case 2:                                                                   //|Fill all lights with green|
+                                                                              //|                          |
+      strip.fill(green, 0, 12);                                               //|                          |
+      strip.show();                                                           //|                          |
+      old_state = button_state;                                               //|                          | 
+      break;                                                                  //|                          |
+
+    case 3:                                                                   //|Fill all lights with blue|  
+                                                                              //|                         |
+      strip.fill(blue, 0, 12);                                                //|                         |
+      strip.show();                                                           //|                         |
+      old_state = button_state;                                               //|                         |
+      break;                                                                  //|                         |
+
+    case 4:                                                                   //|Fill all lights with white|
+                                                                              //|                          |
+      strip.fill(white, 0, 12);                                               //|                          |
+      strip.show();                                                           //|                          |
+      old_state = button_state;                                               //|                          |
+      break;                                                                  //|                          |
+
+    default:                                                                  //|Default case - if button_state is 0|
+                                                                              //|                                   |
+      strip.begin();                                                          //|       Turn off all lights         |
+      strip.clear();                                                          //|                                   |
+      strip.show();                                                           //|                                   |
+      old_state = 0;                                                          //|                                   |
+      button_state = 0;                                                       //|                                   |
+      break;                                                                  //|                                   |
+  }
+                                                                              
+}
+
+void button_poll(){                                                           //Function to be called by attachInterrupt
+
+  button_state = button_state + 1;                                            //Add 1 to button_state when attachInterrupt reads HIGH on Pin 2
+  delay(100);                                                                 //They delay in Loop (line 38), did not seem to work, doubling up
+  
+}
